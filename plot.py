@@ -38,7 +38,7 @@ if __name__ == "__main__":
     # np.save('./data/hbo2hbchpr.npy', hbo2hbchpr)
     # savemat('./data/hbo2hbchpr.mat', {'hbo2hbchpr': hbo2hbchpr})
 
-    """
+    # """
     plt.figure(figsize = (10, 6))
     plt.plot(np.arange(700, 981, 10), hbo2hbchpr)
     plt.xticks(np.arange(700, 981, 20))
@@ -54,5 +54,6 @@ if __name__ == "__main__":
     plt.legend(['Prostate Ground Truth', 'Model Prediction'])
     plt.xlabel("Wavelength (nm)")
     plt.ylabel("Absorption Coefficient (cm^-1)")
+    plt.ylim(0, 0.0012)
     plt.show()
-    """
+    # """
