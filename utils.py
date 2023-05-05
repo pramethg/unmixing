@@ -53,10 +53,10 @@ def wt_scale(array):
         arr[i]/=s[i]
     return arr
 
-def plot_weights(array, legend = ["", "", ""], save = False, scale = False):
+def plot_weights(array, legend = ["", "", ""], save = False, scale = False, div = 25, final = 951):
     plt.figure(figsize = (10, 6))
-    plt.plot(np.arange(700, 951, 25), wt_scale(array) if scale else array)
-    plt.xticks(np.arange(700, 951, 25))
+    plt.plot(np.arange(700, final, div), wt_scale(array) if scale else array)
+    plt.xticks(np.arange(700, final, 20))
     plt.xlabel("Wavelength (nm)")
     plt.ylabel("Absorption Coefficient (cm^-1)")
     plt.legend(legend)
