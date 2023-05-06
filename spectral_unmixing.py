@@ -32,6 +32,7 @@ if __name__ == "__main__":
     plot_3d(Y*1000, X*1000, unmixed[:, :, 2], title = title[2], cmap = 'hot', clim = clim)
     plot_3d_multiple(Y*1000, X*1000, unmixed, title = title, cmap = 'jet', clim = clim)
 
+    # """
     mdl = FastICA(n_components = 3, algorithm = 'parallel', whiten = True, fun = 'exp', random_state = None)
     train_data = np.copy(sim_data)
     train_data = train_data.transpose((1, 2, 0)).reshape((-1, 29))
@@ -52,3 +53,4 @@ if __name__ == "__main__":
     plt.title("ICA")
     plt.tight_layout()
     plt.show()
+    # """
