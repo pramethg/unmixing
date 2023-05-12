@@ -57,3 +57,14 @@ if __name__ == "__main__":
     plt.ylim(0, 0.0012)
     plt.show()
     # """
+
+    """
+    arr = np.load('./data/hbo2hbchpr_57.npy')
+    plt.figure(figsize = (10, 6))
+    plt.plot(np.arange(700, 981, 10), hbo2hbchpr)
+    plt.xticks(np.arange(700, 981, 20))
+    plt.legend(['HbO2', 'Hb', 'Cholesterol', 'Prostate'])
+    plt.xlabel("Wavelength (nm)")
+    plt.ylabel("Absorption Coefficient (cm^-1)")
+    plt.show()
+    """

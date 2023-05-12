@@ -7,10 +7,10 @@ import pandas as pd
 from sklearn.decomposition import FastICA
 
 if __name__ == "__main__":
-    hbhbo2fat = np.load('./data/hbo2hbchpr.npy')[:,0:3]
-    plot_weights(hbhbo2fat, legend = ["HbO2", "Hb", "Cholesterol"], save = False, scale = False, div = 10, final = 981)
+    hbhbo2fat = np.load('./data/hbo2hbchpr_57.npy')[:,0:3]
+    plot_weights(hbhbo2fat, legend = ["HbO2", "Hb", "Cholesterol"], save = False, scale = False, div = 5, final = 981)
 
-    sim_data = np.array([np.array(loadmat(f"./data/hb_hbo2_fat_29/PA_Image_{wave}.mat")['Image_PA']) for wave in np.arange(700, 981, 10)])
+    sim_data = np.array([np.array(loadmat(f"./data/hb_hbo2_fat_57/PA_Image_{wave}.mat")['Image_PA']) for wave in np.arange(700, 981, 5)])
     unmixed = np.zeros((sim_data.shape[1], sim_data.shape[2], 3))
     for i in range(sim_data.shape[1]):
         for j in range(sim_data.shape[2]):
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     plot_3d(Y*1000, X*1000, unmixed[:, :, 2], title = title[2], cmap = 'hot', clim = clim)
     plot_3d_multiple(Y*1000, X*1000, unmixed, title = title, cmap = 'jet', clim = clim)
 
-    # """
+    """
     mdl = FastICA(n_components = 3, algorithm = 'parallel', whiten = True, fun = 'exp', random_state = None)
     train_data = np.copy(sim_data)
     train_data = train_data.transpose((1, 2, 0)).reshape((-1, 29))
@@ -53,4 +53,4 @@ if __name__ == "__main__":
     plt.title("ICA")
     plt.tight_layout()
     plt.show()
-    # """
+    """
