@@ -5,6 +5,8 @@ from scipy.optimize import nnls
 from utils import *
 import pandas as pd
 from sklearn.decomposition import FastICA
+import warnings
+warnings.filterwarnings("ignore", category = FutureWarning)
 
 if __name__ == "__main__":
     num_chrom, num_wave, num_div, max_wave = 3, 29, 10, 981
@@ -30,13 +32,20 @@ if __name__ == "__main__":
     f = loadmat('./data/unmix.mat')
     X, Y = f['x'], f['y']
     clim = [0, 0.012]
-    plot_3d(Y*1000, X*1000, unmixed[:, :, -1], title = title[-1], cmap = 'hot')#, clim = clim)
-    plot_3d_multiple(Y*1000, X*1000, unmixed, title = title, cmap = 'jet')#, clim = clim)
+    plot_3d(Y*1000, X*1000, unmixed[:, :, -1], title = title[-1], cmap = 'hot', clim = clim)
+    plot_3d_multiple(Y*1000, X*1000, unmixed, title = title, cmap = 'jet', clim = clim)
+
+    mdl = FastICA(n_components = 3, algorithm = 'parallel', whiten = True, fun = 'exp', random_state = 27)
+    train_data = np.copy(sim_data)
+    train_data = train_data.transpose((1, 2, 0)).reshape((-1, num_wave))
+    maps = mdl.fit_transform(train_data)
+    ims = np.copy(maps).reshape((396, 101, 3))
+    plot_3d_multiple(Y*1000, X*1000, ims, title = title, cmap = 'jet', clim = None)
 
     """
     mdl = FastICA(n_components = 3, algorithm = 'parallel', whiten = True, fun = 'exp', random_state = None)
     train_data = np.copy(sim_data)
-    train_data = train_data.transpose((1, 2, 0)).reshape((-1, 29))
+    train_data = train_data.transpose((1, 2, 0)).reshape((-1, num_wave))
     maps = mdl.fit_transform(train_data)
     ims = np.copy(maps).reshape((396, 101, 3))
     w = mdl.components_.transpose()
@@ -47,7 +56,7 @@ if __name__ == "__main__":
         plt.imshow(ims[:,:,i], cmap = "hot")
         plt.colorbar()
     plt.subplot(1, 4, 1)
-    plt.plot(np.arange(700, 981, 10), w)
+    plt.plot(np.arange(700, max_wave, num_div), w)
     plt.xticks(np.arange(700, 951, 25))
     plt.xlabel("Wavelength (nm)")
     plt.ylabel("Absorption Coefficient (cm^-1)")
