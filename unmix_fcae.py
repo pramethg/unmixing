@@ -34,6 +34,7 @@ if __name__ == "__main__":
     optimizer = optim.Adam(model.parameters(), lr = lrate)
 
     losses = []
+    model.train()
     for epoch in range(epochs):
         epoch_loss = []
         for batchidx, data in enumerate(train_loader):

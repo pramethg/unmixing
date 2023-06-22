@@ -44,11 +44,14 @@ class MultipleCholesterolDataset:
     def __getitem__(self, idx):
         depth = self.depths[idx]
         depth_data = np.array([np.array(loadmat(f'{self.root}/hb_hbo2_fat_29_{depth}/PA_Image_{wave}.mat')['Image_PA']) for wave in self.wavelist])
+        for wave in range(len(self.wavelist)):
+            depth_data[wave] -= np.min(depth_data[wave])
+            depth_data[wave] /= np.max(depth_data[wave])
         if self.transform:
             sim_data = self.transform(depth_data)
         return torch.Tensor(depth_data)
 
 if __name__ == "__main__":
-    data = SingleCholesterolDataset()
-    dataloader = DataLoader(data, 1, True)
+    data = MultipleCholesterolDataset()
+    dataloader = DataLoader(data, batch_size = 6)
     print(data[0].shape)
