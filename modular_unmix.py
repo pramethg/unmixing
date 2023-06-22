@@ -9,9 +9,9 @@ from scipy.optimize import nnls
 from sklearn.decomposition import FastICA
 
 if __name__ == "__main__":
-    depth = 30
+    depth = 25
     # wave_list = np.arange(700, 981, 10)
-    wave_list = [750, 800, 930, 950]
+    wave_list = [750, 830, 950]
     # wave_list = [750, 760, 800, 830, 850, 880, 910, 920, 940, 950]
     legend = ["HbO2", "Hb", "Cholesterol", "Prostate"]
     wave_abs = np.load('./data/hbo2hbchpr_57.npy')

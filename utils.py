@@ -42,7 +42,8 @@ def plot_3d_multiple(y, x, z, title = None, cmap = 'jet', clim = None, save = Fa
         ax.grid(False)
         ax.view_init(azim = -90, elev = 90)
         ax.set_zticks([])
-        ax.set_title(title[i], fontsize = 16)
+        if title:
+            ax.set_title(title[i], fontsize = 16)
     fig.tight_layout()
     if save:
         plt.savefig(f"./hbo2hbicg.png", dpi = 300, bbox_inches = 'tight')
