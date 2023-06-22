@@ -56,3 +56,9 @@ if __name__ == "__main__":
     f = loadmat('./data/unmix.mat')
     X, Y = f['x'], f['y']
     plot_3d_multiple(Y*1000, X*1000, preds, title = None, cmap = 'jet', clim = None)
+
+'''
+    plt.imshow(np.array(train_data[0][:,0].reshape((396, 101))), cmap = "hot")
+    plt.colorbar()
+    plt.show()
+'''

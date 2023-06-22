@@ -1,8 +1,8 @@
 import torch
 import numpy as np
 from scipy.io import loadmat
-from torch.utils.data import Dataset
 from torchvision import transforms
+from torch.utils.data import Dataset, DataLoader
 
 class SingleCholesterolDataset(Dataset):
     def __init__(self, root = './data/hb_hbo2_fat_29', wavelist = np.arange(700, 981, 10), depth = 35, transform = None):
@@ -23,6 +23,9 @@ class SingleCholesterolDataset(Dataset):
         simdata = simdata.transpose((1, 2, 0)).reshape((h*w, c))
         if self.transform:
             simdata = self.transform(simdata)
+        for wave in range(len(self.wavelist)):
+            simdata[:,wave] -= np.min(simdata[:,wave])
+            simdata[:,wave] /= np.max(simdata[:,wave])
         return torch.Tensor(simdata)
 
 class MultipleCholesterolDataset:
@@ -47,3 +50,5 @@ class MultipleCholesterolDataset:
 
 if __name__ == "__main__":
     data = SingleCholesterolDataset()
+    dataloader = DataLoader(data, 1, True)
+    print(data[0].shape)
