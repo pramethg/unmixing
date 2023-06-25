@@ -45,6 +45,7 @@ if __name__ == "__main__":
         hbo2hbchwtr[idx, 1] = df2['Hb'][df2['Wavelength'] == wave].values[0] * 2.303 * 6.45 /64500
         hbo2hbchwtr[idx, 0] = df2['HbO2'][df2['Wavelength'] == wave].values[0] * 2.303 * 6.45 /64500
         hbo2hbchwtr[idx, 3] = wyp[idx]
+    hbo2hbchwtr[0, 3] = 0.006012
 
     plot_weights(hbo2hbchwtr[:,:4], legend = ["HbO2", "Hb", "Cholesterol", "Water"], save = False, scale = False, div = 10, final = 981)
 
@@ -87,4 +88,7 @@ if __name__ == "__main__":
     plt.xlabel("Wavelength (nm)")
     plt.ylabel("Absorption Coefficient (cm^-1)")
     plt.show()
+
+    for i in range(hbo2hbchwtr.shape[0]):
+        print(f"{hbo2hbchwtr[i, 0]:.5f} {hbo2hbchwtr[i, 1]:.5f} {hbo2hbchwtr[i, 2]:.5f} {hbo2hbchwtr[i, 3]:.5f}")
     """
