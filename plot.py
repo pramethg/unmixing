@@ -6,11 +6,8 @@ from utils import *
 from scipy.io import savemat, loadmat
 
 if __name__ == "__main__":
-    hbhbo2icg = np.load('./data/hb_hbo2_icg.npy')
-    plot_weights(hbhbo2icg, legend = ["HbO2", "Hb", "ICG"], save = False, scale = False)
-
-    hbhbo2fat = np.load('./data/hb_hbo2_fat.npy')
-    plot_weights(hbhbo2fat, legend = ["HbO2", "Hb", "Cholesterol"], save = False, scale = False)
+    hbhbo2fat = np.load('./data/hbo2hbchpr_11.npy')
+    plot_weights(hbhbo2fat, legend = ["HbO2", "Hb", "Cholesterol"], save = False, final = 951, scale = False, div = 25)
 
     df1 = pd.read_csv('./data/cholesterol_abs.csv')
     plt.figure(figsize = (10, 6))
@@ -23,7 +20,7 @@ if __name__ == "__main__":
     df2 = pd.read_csv('./data/hbo2hb_mec.csv')
 
     x, y, xp = np.arange(700, 951, 25), np.array([0.6, 0.5, 0.7, 0.7, 0.8, 0.85, 0.9, 0.95, 1.0, 0.95, 0.9])/1000, np.arange(700, 981, 10)
-    model = np.poly1d(np.polyfit(x, y, 5))
+    model = np.poly1d(np.polyfit(x, y, 3))
     yp = model(xp)
 
     hbo2hbchpr = np.zeros((29, 4))
@@ -35,10 +32,25 @@ if __name__ == "__main__":
 
     plot_weights(hbo2hbchpr[:,:3], legend = ["HbO2", "Hb", "Cholesterol"], save = False, scale = False, div = 10, final = 981)
 
-    # np.save('./data/hbo2hbchpr.npy', hbo2hbchpr)
+    df3 = pd.read_csv('./data/water.csv')
+    wx = [df3['lambda'][df3['lambda'] == i].item() for i in range(700, 981, 10) if i in df3['lambda'].values]
+    wy = [df3['absorption'][df3['lambda'] == i].item() for i in wx]
+    wxp = np.arange(700, 981, 10)
+    wmodel = np.poly1d(np.polyfit(wx, wy, 6))
+    wyp = wmodel(wxp)
+
+    hbo2hbchwtr = np.zeros((29, 4))
+    for idx, wave in enumerate(np.arange(700, 981, 10)):
+        hbo2hbchwtr[idx, 2] = df1['AbsorptionCoeff'][df1['Wavelength'] == wave].values[0] / 100
+        hbo2hbchwtr[idx, 1] = df2['Hb'][df2['Wavelength'] == wave].values[0] * 2.303 * 6.45 /64500
+        hbo2hbchwtr[idx, 0] = df2['HbO2'][df2['Wavelength'] == wave].values[0] * 2.303 * 6.45 /64500
+        hbo2hbchwtr[idx, 3] = wyp[idx]
+
+    plot_weights(hbo2hbchwtr[:,:4], legend = ["HbO2", "Hb", "Cholesterol", "Water"], save = False, scale = False, div = 10, final = 981)
+
+    np.save('./data/hbo2hbchwtr_29.npy', hbo2hbchwtr)
     # savemat('./data/hbo2hbchpr.mat', {'hbo2hbchpr': hbo2hbchpr})
 
-    # """
     plt.figure(figsize = (10, 6))
     plt.plot(np.arange(700, 981, 10), hbo2hbchpr)
     plt.xticks(np.arange(700, 981, 20))
@@ -56,7 +68,15 @@ if __name__ == "__main__":
     plt.ylabel("Absorption Coefficient (cm^-1)")
     plt.ylim(0, 0.0012)
     plt.show()
-    # """
+
+    plt.figure(figsize = (10, 6))
+    plt.scatter(wx, wy)
+    plt.plot(wxp, wyp, 'r')
+    plt.xticks(np.arange(700, 981, 20))
+    plt.legend(['Water Ground Truth', 'Model Prediction'])
+    plt.xlabel("Wavelength (nm)")
+    plt.ylabel("Absorption Coefficient (cm^-1)")
+    plt.show()
 
     """
     arr = np.load('./data/hbo2hbchpr_57.npy')

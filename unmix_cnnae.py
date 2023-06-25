@@ -12,9 +12,13 @@ from datasets import *
 from models.autoencoder import *
 
 if __name__ == "__main__":
-    batch_size, lrate, epochs = 6, 3e-4, 300
-    wave_list, depths, ncomp = np.arange(700, 981, 10), np.arange(25, 41, 5), 3
+    seed = 9
+    batch_size, lrate, epochs = 6, 3e-2, 300
+    wave_list, depths, ncomp = np.arange(700, 981, 10), np.arange(15, 41, 5), 3
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    np.random.seed(seed)
+    torch.manual_seed(seed)
 
     train_data = MultipleCholesterolDataset(
                                 root = "./data",
