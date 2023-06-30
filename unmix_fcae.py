@@ -3,6 +3,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from tqdm.auto import tqdm
 from scipy.io import loadmat
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
@@ -35,6 +36,7 @@ if __name__ == "__main__":
 
     losses = []
     model.train()
+    progressbar = tqdm(range(epochs))
     for epoch in range(epochs):
         epoch_loss = []
         for batchidx, data in enumerate(train_loader):
@@ -47,8 +49,8 @@ if __name__ == "__main__":
             optimizer.step()
         mean_loss = sum(epoch_loss) / len(epoch_loss)
         losses.append(mean_loss)
-        if epoch % 50 == 0:
-            print(f"Epoch {epoch + 1} - Loss: {mean_loss:.5f}")
+        progressbar.update(1)
+        progressbar.set_postfix_str(s = f"MSE Loss: {mean_loss:.5f}")
     
     sim_data = np.array([np.array(loadmat(f'./data/hb_hbo2_fat_29_15/PA_Image_{wave}.mat')['Image_PA']) for wave in wave_list])
     c, h, w = sim_data.shape

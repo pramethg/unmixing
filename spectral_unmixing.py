@@ -13,7 +13,7 @@ if __name__ == "__main__":
     hbhbo2fat = np.load(f'./data/hbo2hbchpr_{num_wave}.npy')[:,0:num_chrom]
     plot_weights(hbhbo2fat, legend = ["HbO2", "Hb", "Cholesterol"], save = False, scale = False, div = num_div, final = max_wave)
 
-    sim_data = np.array([np.array(loadmat(f"./data/hb_hbo2_fat_{num_wave}_15/PA_Image_{wave}.mat")['Image_PA']) for wave in np.arange(700, max_wave, num_div)])
+    sim_data = np.array([np.array(loadmat(f"./data/wtr_hb_hbo2_fat_{num_wave}_35/PA_Image_{wave}.mat")['Image_PA']) for wave in np.arange(700, max_wave, num_div)])
     unmixed = np.zeros((sim_data.shape[1], sim_data.shape[2], num_chrom))
     for i in range(sim_data.shape[1]):
         for j in range(sim_data.shape[2]):

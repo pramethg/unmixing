@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.optimize import nnls
 from sklearn.decomposition import FastICA
 import warnings
 warnings.filterwarnings("ignore")
@@ -103,3 +104,10 @@ def plot_ica_2d(ims, wave_list, w):
     plt.title("ICA")
     plt.tight_layout()
     plt.show()
+
+def run_linear_unmixing(sim_data, abscoeffs):
+    unmixed = np.zeros((sim_data.shape[1], sim_data.shape[2], 3))
+    for i in range(sim_data.shape[1]):
+        for j in range(sim_data.shape[2]):
+            unmixed[i, j] = nnls(abscoeffs, sim_data[:, i, j])[0]
+    return unmixed

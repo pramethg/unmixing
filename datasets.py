@@ -28,7 +28,7 @@ class SingleCholesterolDataset(Dataset):
             simdata[:,wave] /= np.max(simdata[:,wave])
         return torch.Tensor(simdata)
 
-class MultipleCholesterolDataset:
+class MultipleCholesterolDataset(Dataset):
     def __init__(self, root = "./data", wavelist = np.arange(700, 981, 10), depths = np.arange(15, 41, 5), transform = None):
         self.root = root
         self.depths = depths
