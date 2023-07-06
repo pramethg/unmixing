@@ -59,7 +59,7 @@ def wt_scale(array):
     return arr
 
 def plot_weights(array, legend = ["", "", ""], save = False, scale = False, div = 25, final = 981):
-    plt.figure(figsize = (8, 6))
+    plt.figure(figsize = (10, 6))
     plt.plot(np.arange(700, final, div), wt_scale(array) if scale else array)
     plt.xticks(np.arange(700, final, 20))
     plt.xlabel("Wavelength (nm)")
@@ -71,7 +71,7 @@ def plot_weights(array, legend = ["", "", ""], save = False, scale = False, div 
     plt.show()
 
 def weights_plot(array, wave_list, scale = False, legend = ["HbO2", "Hb", "Cholesterol", "Prostate"], save = False):
-    plt.figure(figsize = (8, 6))
+    plt.figure(figsize = (6, 4))
     plt.plot(wave_list, wt_scale(array) if scale else array)
     plt.xticks(np.arange(min(wave_list), max(wave_list), 20))
     plt.xlabel("Wavelength (nm)")
@@ -88,10 +88,10 @@ def run_ica(train_data, wave_list, n_components = 3, random_state = None):
     maps = mdl.fit_transform(train_data)
     ims = np.copy(maps).reshape((396, 101, 3))
     w = mdl.components_.transpose()
-    return ims, w
+    return ims, w, mdl
 
-def plot_ica_2d(ims, wave_list, w):
-    plt.figure(figsize = (15, 4))
+def plot_ica_2d(ims, wave_list, w, title = "ICA", figsize = (15, 4)):
+    plt.figure(figsize = figsize)
     for i in range(3):
         plt.subplot(1, 4, i+2)
         plt.imshow(ims[:,:,i], cmap = "hot")
@@ -101,7 +101,7 @@ def plot_ica_2d(ims, wave_list, w):
     plt.xticks(np.arange(min(wave_list), max(wave_list), 20))
     plt.xlabel("Wavelength (nm)")
     plt.ylabel("Absorption Coefficient (cm^-1)")
-    plt.title("ICA")
+    plt.title(label = title)
     plt.tight_layout()
     plt.show()
 
