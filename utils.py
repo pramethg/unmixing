@@ -5,6 +5,13 @@ from sklearn.decomposition import FastICA
 import warnings
 warnings.filterwarnings("ignore")
 
+def normalize(image):
+    mean = np.mean(image, axis = (0, 1))
+    std = np.std(image, axis = (0, 1))
+    normalized_image = (image - mean) / std
+    scaled_image = (normalized_image - np.min(normalized_image)) / (np.max(normalized_image) - np.min(normalized_image))
+    return scaled_image
+
 def plot_3d(y, x, z, title = None, cmap = 'jet', clim = None, save = False):
     fig = plt.figure(figsize = (6, 6))
     ax = fig.add_subplot(projection='3d', proj_type = 'ortho')
@@ -90,11 +97,16 @@ def run_ica(train_data, wave_list, n_components = 3, random_state = None):
     w = mdl.components_.transpose()
     return ims, w, mdl
 
-def plot_ica_2d(ims, wave_list, w, title = "ICA", figsize = (15, 4)):
+def plot_ica_2d(ims, wave_list, w, title = "ICA", figsize = (15, 4), order = [0, 1, 2]):
+    chrom = ["HbO2", "Hb", "Cholesterol"]
     plt.figure(figsize = figsize)
-    for i in range(3):
+    for i, j in zip(range(ims.shape[2]), order):
         plt.subplot(1, 4, i+2)
-        plt.imshow(ims[:,:,i], cmap = "hot")
+        plt.imshow(ims[:,:,j], cmap = "hot")
+        if title != 'ICA':
+            plt.title(chrom[i])
+        else:
+            plt.title(f'Component {i+1}')
         plt.colorbar()
     plt.subplot(1, 4, 1)
     plt.plot(wave_list, w)
@@ -102,6 +114,10 @@ def plot_ica_2d(ims, wave_list, w, title = "ICA", figsize = (15, 4)):
     plt.xlabel("Wavelength (nm)")
     plt.ylabel("Absorption Coefficient (cm^-1)")
     plt.title(label = title)
+    if title != 'ICA':
+        plt.legend(['HbO2', 'Hb', 'Cholesterol'])
+    else:
+        plt.legend([f'{idx}' for idx in range(1, 4)])
     plt.tight_layout()
     plt.show()
 
