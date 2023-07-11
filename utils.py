@@ -80,7 +80,7 @@ def plot_weights(array, legend = ["", "", ""], save = False, scale = False, div 
 def weights_plot(array, wave_list, scale = False, legend = ["HbO2", "Hb", "Cholesterol", "Prostate"], save = False):
     plt.figure(figsize = (6, 4))
     plt.plot(wave_list, wt_scale(array) if scale else array)
-    plt.xticks(np.arange(min(wave_list), max(wave_list), 20))
+    plt.xticks(wave_list)
     plt.xlabel("Wavelength (nm)")
     plt.ylabel("Absorption Coefficient (cm^-1)")
     plt.legend(legend)
