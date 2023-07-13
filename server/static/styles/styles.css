@@ -1,0 +1,137 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+
+h1 {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+    max-width: 1900px;
+}
+
+.sidebar {
+    width: 200px;
+    background-color: lightgrey;
+    padding: 20px;
+    position: sticky;
+    top: 20px;
+}
+
+.sidebar h2 {
+    margin-top: 0;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1;
+}
+
+.plots-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.plot {
+    width: 100%;
+    max-width: 550px;
+    height: auto;
+}
+
+.roi-multiple-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.roi-multiple-container .plot {
+    max-width: 440px;
+}
+
+.comps-container {
+    display: flex;
+    gap: 20px;
+}
+
+.comps {
+    width: 100%;
+    max-width: 600px;
+    height: auto;
+}
+
+.component-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.comps-container2 {
+    display: flex;
+    gap: 20px;
+}
+
+.comps2 {
+    width: 100%;
+    max-width: 600px;
+    height: auto;
+}
+
+.component-container2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+
+h2 {
+    margin-top: 0;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+label {
+    display: flex;
+    flex-direction: column;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="float"] {
+    padding: 5px;
+    border: 1px solid lightgrey;
+    border-radius: 3px;
+}
+
+input[type="submit"] {
+    padding: 8px 12px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+input[type="submit"]:hover {
+    background-color: #0056b3;
+}
