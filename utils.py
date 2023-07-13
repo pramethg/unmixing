@@ -94,30 +94,26 @@ def run_ica(train_data, wave_list, n_components = 3, random_state = None):
     train_data = train_data.transpose((1, 2, 0)).reshape((-1, len(wave_list)))
     maps = mdl.fit_transform(train_data)
     ims = np.copy(maps).reshape((396, 101, 3))
-    w = mdl.components_.transpose()
+    w = np.linalg.pinv(mdl.components_)
     return ims, w, mdl
 
-def plot_ica_2d(ims, wave_list, w, title = "ICA", figsize = (15, 4), order = [0, 1, 2]):
+def plot_comps_2d(comps, wave_list, wts, title = "ICA", figsize = (15, 4), order = [0, 1, 2], invert_sign = None):
+    ims = np.array([comps[:,:,i] for i in order]).transpose((1, 2, 0))
+    w = np.array([wts[:,i] for i in order]).T
     chrom = ["HbO2", "Hb", "Cholesterol"]
     plt.figure(figsize = figsize)
-    for i, j in zip(range(ims.shape[2]), order):
+    for i in range(ims.shape[2]):
         plt.subplot(1, 4, i+2)
-        plt.imshow(ims[:,:,j], cmap = "hot")
-        if title != 'ICA':
-            plt.title(chrom[i])
-        else:
-            plt.title(f'Component {i+1}')
+        plt.imshow((-ims[:,:,i]) if invert_sign == i else (ims[:,:,i]), cmap = "hot")
+        plt.title(chrom[i] + "(Inverted)" if invert_sign == i else chrom[i])
         plt.colorbar()
     plt.subplot(1, 4, 1)
     plt.plot(wave_list, w)
-    plt.xticks(np.arange(min(wave_list), max(wave_list), 20))
+    plt.xticks(wave_list)
     plt.xlabel("Wavelength (nm)")
     plt.ylabel("Absorption Coefficient (cm^-1)")
     plt.title(label = title)
-    if title != 'ICA':
-        plt.legend(['HbO2', 'Hb', 'Cholesterol'])
-    else:
-        plt.legend([f'{idx}' for idx in range(1, 4)])
+    plt.legend(['HbO2', 'Hb', 'Cholesterol'])
     plt.tight_layout()
     plt.show()
 
