@@ -77,8 +77,8 @@ def plot_weights(array, legend = ["", "", ""], save = False, scale = False, div 
         plt.savefig(f"{legend[0]}{legend[1]}{legend[2]}.png")
     plt.show()
 
-def weights_plot(array, wave_list, scale = False, legend = ["HbO2", "Hb", "Cholesterol", "Prostate"], save = False):
-    plt.figure(figsize = (6, 4))
+def weights_plot(array, wave_list, scale = False, legend = ["HbO2", "Hb", "Cholesterol", "Prostate"], save = False, figsize = (6, 4)):
+    plt.figure(figsize = figsize)
     plt.plot(wave_list, wt_scale(array) if scale else array)
     plt.xticks(wave_list)
     plt.xlabel("Wavelength (nm)")
@@ -97,7 +97,7 @@ def run_ica(train_data, wave_list, n_components = 3, random_state = None):
     w = np.linalg.pinv(mdl.components_)
     return ims, w, mdl
 
-def plot_comps_2d(comps, wave_list, wts, title = "ICA", figsize = (15, 4), order = [0, 1, 2], invert_sign = None, clim = None):
+def plot_comps_2d(comps, wave_list, wts, title = "ICA", figsize = (15, 4), order = [0, 1, 2], invert_sign = None, clim = [None, None, None]):
     ims = np.array([comps[:,:,i] for i in order]).transpose((1, 2, 0))
     w = np.array([wts[:,i] for i in order]).T
     chrom = ["HbO2", "Hb", "Cholesterol"]
@@ -106,8 +106,8 @@ def plot_comps_2d(comps, wave_list, wts, title = "ICA", figsize = (15, 4), order
         plt.subplot(1, 4, i+2)
         plt.imshow((-ims[:,:,i]) if invert_sign == i else (ims[:,:,i]), cmap = "hot")
         plt.title(chrom[i] + "(Inverted)" if invert_sign == i else chrom[i])
-        if i == 2 and clim is not None:
-            plt.clim(clim)
+        if clim[i] is not None:
+            plt.clim(clim[i])
         plt.colorbar()
     plt.subplot(1, 4, 1)
     plt.plot(wave_list, w)
