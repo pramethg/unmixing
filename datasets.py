@@ -1,15 +1,17 @@
 import torch
 import numpy as np
+from scipy import linalg
 from scipy.io import loadmat
 from torchvision import transforms
 from torch.utils.data import Dataset, DataLoader
 
 class SingleCholesterolDataset(Dataset):
-    def __init__(self, root = './data/hb_hbo2_fat_29', wavelist = np.arange(700, 981, 10), depth = 35, transform = None):
+    def __init__(self, root = './data/hb_hbo2_fat_29', wavelist = np.arange(700, 981, 10), depth = 35, transform = None, whiten = False):
         self.root = root
         self.depth = depth
         self.wavelist = wavelist
         self.transform = transform
+        self.whiten = whiten
     
     def __len__(self):
         return 1
@@ -21,6 +23,16 @@ class SingleCholesterolDataset(Dataset):
         simdata = np.array([np.array(loadmat(f'{self.root}_{self.depth}/PA_Image_{wave}.mat')['Image_PA']) for wave in self.wavelist])
         c, h, w = simdata.shape
         simdata = simdata.transpose((1, 2, 0)).reshape((h*w, c))
+        if self.whiten:
+            simdata = simdata.T
+            sim_mean = simdata.mean(axis = -1)
+            simdata -= sim_mean[:, np.newaxis]
+            U, D = linalg.svd(simdata, full_matrices = False, check_finite = False)[:2]
+            U *= np.sign(U[0])
+            K = (U / D).T
+            simdata = np.dot(K, simdata)
+            simdata *= np.sqrt(h * w)
+            simdata = simdata.T
         if self.transform:
             simdata = self.transform(simdata)
         for wave in range(len(self.wavelist)):
@@ -52,6 +64,6 @@ class MultipleCholesterolDataset(Dataset):
         return torch.Tensor(depth_data)
 
 if __name__ == "__main__":
-    data = MultipleCholesterolDataset()
+    data = SingleCholesterolDataset(whiten = True, depth = 25)
     dataloader = DataLoader(data, batch_size = 6)
     print(data[0].shape)

@@ -11,6 +11,7 @@ import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 
 from models.nnsae import NNSAE
+from datasets import SingleCholesterolDataset
 plt.style.use('dark_background')
 warnings.filterwarnings('ignore')
 
@@ -47,14 +48,23 @@ def test():
     x = torch.randn(1, 39996, 10)
     print(model(x).shape, model.encoder(x).shape)
 
-def main():
-    BATCH_SIZE = 101
+if __name__ == "__main__":
+    SINGLE = True
+    BATCH_SIZE = 1
     EPOCHS = 500
     np.random.seed(seed = 9)
     torch.manual_seed(seed = 9)
+
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    dataset = SimulatedCholesterolDataset(root = './data/hb_hbo2_fat_29', transform = None)
+    if SINGLE:
+        dataset = SingleCholesterolDataset(root = './data/hb_hbo2_fat_29', 
+                                        wavelist = [750, 760, 800, 850, 900, 910, 920, 930, 940, 950],
+                                        depth = 25, 
+                                        transform = None)
+    else:
+        dataset = SimulatedCholesterolDataset(root = './data/hb_hbo2_fat_29', transform = None)
     dataloader = DataLoader(dataset, batch_size = BATCH_SIZE, shuffle = True)
+
     model = NNSAE(len(dataset.wavelist), 3, 0.1, 0.01).to(device)
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr = 3e-4)
@@ -81,10 +91,3 @@ def main():
         losses.append(meanloss)
     del epochloss, data, pred, activations
     print(f'Last Epoch Loss: {losses[-1]}')
-
-    encpred = model.encoder(dataset.mixed.to(device = device)).cpu().detach().numpy()
-    modelpred = model(dataset.mixed.to(device = device)).cpu().detach().numpy()
-    print(encpred.shape, modelpred.shape)
-
-if __name__ == "__main__":
-    main()

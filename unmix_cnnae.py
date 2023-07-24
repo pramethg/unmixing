@@ -15,7 +15,7 @@ from models.autoencoder import *
 if __name__ == "__main__":
     seed = 9
     batch_size, lrate, epochs = 6, 3e-2, 300
-    wave_list, depths, ncomp = np.arange(700, 981, 10), np.arange(15, 41, 5), 3
+    wave_list, depths, ncomp = [750, 760, 800, 850, 900, 910, 920, 930, 940, 950], np.arange(15, 41, 5), 3
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     np.random.seed(seed)
@@ -59,7 +59,7 @@ if __name__ == "__main__":
         progressbar.update(1)
         progressbar.set_postfix_str(s = f"MSE Loss: {mean_loss:.5f}")
 
-    sim_data = np.array([np.array(loadmat(f'./data/hb_hbo2_fat_29_15/PA_Image_{wave}.mat')['Image_PA']) for wave in wave_list])
+    sim_data = np.array([np.array(loadmat(f'./data/hb_hbo2_fat_29_25/PA_Image_{wave}.mat')['Image_PA']) for wave in wave_list])
     c, h, w = sim_data.shape
     sim_data = torch.tensor(np.expand_dims(sim_data, axis = 0), dtype = torch.float32)
     preds = np.array(model.encoder(sim_data.to(device)).cpu().detach())[0].transpose((1, 2, 0))
