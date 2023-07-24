@@ -6,12 +6,19 @@ from torchvision import transforms
 from torch.utils.data import Dataset, DataLoader
 
 class SingleCholesterolDataset(Dataset):
-    def __init__(self, root = './data/hb_hbo2_fat_29', wavelist = np.arange(700, 981, 10), depth = 35, transform = None, whiten = False):
+    def __init__(self, root = './data/hb_hbo2_fat_29', wavelist = np.arange(700, 981, 10), depth = 35, transform = None, whiten = False, normalize = True):
         self.root = root
         self.depth = depth
         self.wavelist = wavelist
         self.transform = transform
         self.whiten = whiten
+    
+    @staticmethod
+    def normalize(image):
+        imgmin = np.min(image, axis = (1, 2), keepdims = True)
+        imgmax = np.max(image, axis = (1, 2), keepdims = True)
+        image = (image - imgmin) / (imgmax - imgmin)
+        return image
     
     def __len__(self):
         return 1
@@ -22,6 +29,8 @@ class SingleCholesterolDataset(Dataset):
     def __getitem__(self, idx):
         simdata = np.array([np.array(loadmat(f'{self.root}_{self.depth}/PA_Image_{wave}.mat')['Image_PA']) for wave in self.wavelist])
         c, h, w = simdata.shape
+        if self.normalize:
+            simdata = self.normalize(simdata)
         simdata = simdata.transpose((1, 2, 0)).reshape((h*w, c))
         if self.whiten:
             simdata = simdata.T
@@ -35,9 +44,6 @@ class SingleCholesterolDataset(Dataset):
             simdata = simdata.T
         if self.transform:
             simdata = self.transform(simdata)
-        for wave in range(len(self.wavelist)):
-            simdata[:,wave] -= np.min(simdata[:,wave])
-            simdata[:,wave] /= np.max(simdata[:,wave])
         return torch.Tensor(simdata)
 
 class MultipleCholesterolDataset(Dataset):

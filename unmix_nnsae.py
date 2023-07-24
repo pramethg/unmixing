@@ -64,7 +64,8 @@ if __name__ == "__main__":
                                         wavelist = WAVE_LIST,
                                         depth = 25, 
                                         transform = None,
-                                        whiten = True)
+                                        whiten = False,
+                                        normalize = True)
     else:
         dataset = SimulatedCholesterolDataset(root = './data/hb_hbo2_fat_29', transform = None)
     dataloader = DataLoader(dataset, batch_size = BATCH_SIZE, shuffle = True)
@@ -79,6 +80,8 @@ if __name__ == "__main__":
         for _, data in enumerate(dataloader):
             data = data.to(device = device)
             optimizer.zero_grad()
+            for param in model.parameters():
+                param.data = torch.clamp(param.data, 0)
             pred = model(data)
             loss = criterion(pred, data)
             activations = model.encoder(data)
@@ -98,7 +101,7 @@ if __name__ == "__main__":
 
     sim_data = np.array([np.array(loadmat(f'./data/hb_hbo2_fat_29_25/PA_Image_{wave}.mat')['Image_PA']) for wave in WAVE_LIST])
     c, h, w = sim_data.shape
-    sim_data = whiten(sim_data)
+    sim_data = normalize(sim_data)
     sim_data = torch.tensor(np.expand_dims(sim_data.transpose((1, 2, 0)).reshape((h*w, c)), axis = 0), dtype = torch.float32)
     preds = np.array(model.encoder(sim_data.to(device)).cpu().detach())[0].reshape((h, w, ncomp))
     
