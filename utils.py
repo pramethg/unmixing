@@ -114,7 +114,7 @@ def run_ica(train_data, wave_list, n_components = 3, random_state = None, fun = 
     w = np.linalg.pinv(mdl.components_)
     return ims, w, mdl
 
-def plot_comps_2d(comps, wave_list, wts, title = "ICA", figsize = (15, 4), order = [0, 1, 2], invert_sign = None, clim = [None]*3, xticks = None, chrom = ['HbO2', 'Hb', 'Cholesterol']):
+def plot_comps_2d(comps, wave_list, wts, title = "ICA", figsize = (15, 4), order = [0, 1, 2], invert_sign = None, clim = [None]*3, xticks = None, chrom = ['HbO2', 'Hb', 'Cholesterol'], save = None):
     ims = np.array([comps[:,:,i] for i in order]).transpose((1, 2, 0))
     w = np.array([wts[:,i] for i in order]).T
     plt.figure(figsize = figsize)
@@ -134,7 +134,10 @@ def plot_comps_2d(comps, wave_list, wts, title = "ICA", figsize = (15, 4), order
     plt.title(label = title)
     plt.legend(chrom)
     plt.tight_layout()
-    plt.show()
+    if save:
+        plt.savefig(f'{save}.png', dpi = 500)
+    else:
+        plt.show()
 
 def run_linear_unmixing(sim_data, abscoeffs):
     unmixed = np.zeros((sim_data.shape[1], sim_data.shape[2], abscoeffs.shape[1]))
