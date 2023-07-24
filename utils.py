@@ -6,12 +6,17 @@ from sklearn.decomposition import FastICA
 import warnings
 warnings.filterwarnings("ignore")
 
-def normalize(image):
-    mean = np.mean(image, axis = (0, 1))
-    std = np.std(image, axis = (0, 1))
+def normalize(image, axis = (1, 2), keepdims = True):
+    minimg = np.min(image, axis = axis, keepdims = keepdims)
+    maximg = np.max(image, axis = axis, keepdims = keepdims)
+    normalized_image = (image - minimg) / (maximg - minimg)
+    return normalized_image
+
+def standardize(image, axis = (1, 2), keepdims = True):
+    mean = np.mean(image, axis = axis, keepdims = keepdims)
+    std = np.std(image, axis = axis, keepdims = keepdims)
     normalized_image = (image - mean) / std
-    scaled_image = (normalized_image - np.min(normalized_image)) / (np.max(normalized_image) - np.min(normalized_image))
-    return scaled_image
+    return normalized_image
 
 def whiten(X):
     c, h, w = X.shape
