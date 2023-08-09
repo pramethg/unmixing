@@ -10,11 +10,11 @@ from torch.utils.data import DataLoader
 sys.path.insert(0, os.path.abspath('./models'))
 from utils import *
 from datasets import *
-from models.autoencoder import *
+from model.autoencoder import *
 
 if __name__ == "__main__":
     batch_size, lrate, epochs = 39996, 1e-3, 200
-    wave_list, depth, ncomp = [750, 760, 800, 850, 900, 910, 920, 930, 940, 950], 25, 3
+    wave_list, depth, ncomp = [750, 760, 800, 850, 900, 910, 920, 930, 940, 950], list(range(15, 41, 5)), 3
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     train_data = SingleCholesterolDataset(
@@ -60,7 +60,7 @@ if __name__ == "__main__":
     preds = np.array(model.encoder(sim_data.to(device)).cpu().detach())[0].reshape((h, w, ncomp))
     
     wts = (model.encoder[0].weight).cpu().detach().numpy()
-    plot_comps_2d(preds, wave_list, np.linalg.pinv(wts), order = [0, 1, 2], xticks = wave_list, title = 'FCAE')
+    plot_comps_2d(preds, wave_list, np.linalg.pinv(wts), order = [0, 1, 2], xticks = wave_list, title = 'FCAE', save = 'fcae')
 '''
     f = loadmat('./data/unmix.mat')
     X, Y = f['x'], f['y']

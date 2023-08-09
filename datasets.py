@@ -43,9 +43,8 @@ class SingleCholesterolDataset(Dataset):
                 K = (U / D).T
                 simdata = np.dot(K, simdata)
                 simdata *= np.sqrt(h * w)
-            simdata = simdata.T
             simdatalist.append(simdata)
-        simdatalist = np.array(simdatalist).transpose(1, 0, 2).reshape((len(self.wavelist), -1))
+        simdatalist = np.array(simdatalist).transpose(2, 0, 1).reshape((len(self.wavelist), -1)).T
         if self.transform:
             simdata = self.transform(simdata)
         return torch.Tensor(simdatalist)

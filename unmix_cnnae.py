@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 sys.path.insert(0, os.path.abspath('./src'))
 from utils import *
 from datasets import *
-from models.autoencoder import *
+from model.autoencoder import *
 
 if __name__ == "__main__":
     seed = 9
