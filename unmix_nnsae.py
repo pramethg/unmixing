@@ -45,15 +45,18 @@ def validdata():
     print(len(dataset), dataset[0].shape)
 
 def test():
-    model = NNSAE(10, 3, 0.1, 0.01)
+    model = NNSAE(10, 3, True, 0.1, 0.01)
     x = torch.randn(1, 39996, 10)
     print(model(x).shape, model.encoder(x).shape)
 
 if __name__ == "__main__":
-    SEED = 1999
+    SEED = 9
+    TIED = True
+    N_COMP = 3
     SINGLE = True
     BATCH_SIZE = 39996
     EPOCHS = 500
+    SAVE = False
     WAVE_LIST, ncomp = [750, 760, 800, 850, 900, 910, 920, 930, 940, 950], 3
     np.random.seed(seed = SEED)
     torch.manual_seed(seed = SEED)
@@ -68,9 +71,9 @@ if __name__ == "__main__":
     print(dataset)
     dataloader = DataLoader(dataset, batch_size = BATCH_SIZE, shuffle = True)
 
-    model = NNSAE(len(dataset.wavelist), 3, 0.1, 0.01).to(device)
+    model = NNSAE(len(dataset.wavelist), N_COMP, TIED, 0.1, 0.01).to(device)
     criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr = 1e-3)
+    optimizer = optim.Adam(model.parameters(), lr = 5e-4)
     progressbar = tqdm(range(EPOCHS))
     losses = []
     for epoch in progressbar:
@@ -88,14 +91,19 @@ if __name__ == "__main__":
             loss.backward()
             torch.nn.utils.clip_grad_value_(model.parameters(), clip_value = 1.0)
             optimizer.step()
+            if TIED:
+                assert(model.encoder.weight.all() == model.decoder.weight.t().all())
             epochloss.append(loss.item())
         meanloss = sum(epochloss) / len(epochloss)
         progressbar.update(1)
         progressbar.set_description(f"Epoch [{epoch + 1}/{EPOCHS}]")
-        progressbar.set_postfix_str(s = f'MSE Loss: {loss.item():.3f}')
+        progressbar.set_postfix_str(s = f'Loss: {loss.item():.3f}')
         losses.append(meanloss)
     del epochloss, data, pred, activations
     print(f'Last Epoch Loss: {losses[-1]}')
+
+    if SAVE:
+        torch.save(model.state_dict(), 'NNSAE.pth')
 
     sim_data = np.array([np.array(loadmat(f'./data/hb_hbo2_fat_29_25/PA_Image_{wave}.mat')['Image_PA']) for wave in WAVE_LIST])
     c, h, w = sim_data.shape
@@ -104,4 +112,8 @@ if __name__ == "__main__":
     preds = np.array(model.encoder(sim_data.to(device)).cpu().detach())[0].reshape((h, w, ncomp))
     
     wts = (model.encoder.weight).cpu().detach().numpy()
-    plot_comps_2d(preds, WAVE_LIST, np.linalg.pinv(wts), order = [0, 1, 2], xticks = WAVE_LIST, title = 'NNSAE', save = 'nnsae', chrom = [None]*3)
+    plot_comps_2d(preds, WAVE_LIST, np.transpose(wts), order = [0, 1, 2], xticks = WAVE_LIST, title = 'NNSAE', save = 'NNSAE', chrom = [None]*3)
+    plt.figure(figsize = (10, 6))
+    plt.plot(np.arange(len(losses)), losses, 'r')
+    plt.savefig('LOSS.png', dpi = 500)
+    plt.close()

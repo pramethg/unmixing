@@ -143,6 +143,7 @@ def plot_comps_2d(comps, wave_list, wts, title = "ICA", figsize = (15, 4), order
         plt.savefig(f'{save}.png', dpi = 500)
     else:
         plt.show()
+    plt.close()
 
 def run_linear_unmixing(sim_data, abscoeffs):
     unmixed = np.zeros((sim_data.shape[1], sim_data.shape[2], abscoeffs.shape[1]))
