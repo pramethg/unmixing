@@ -1,4 +1,5 @@
 import os
+import math
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -92,3 +93,13 @@ if __name__ == "__main__":
     for i in range(hbo2hbchwtr.shape[0]):
         print(f"{hbo2hbchwtr[i, 0]:.5f} {hbo2hbchwtr[i, 1]:.5f} {hbo2hbchwtr[i, 2]:.5f} {hbo2hbchwtr[i, 3]:.5f}")
     """
+
+"""
+    HbO2, Hb, Cholesterol, Melanin(Skin)
+    data = np.load('./data/hbo2hbchpr_57.npy')
+    for idx, wave in enumerate(list(range(700, 981, 5))):
+        print(f'{wave} {data[idx][0]:.5f} {data[idx][1]:.5f} {data[idx][2]:.5f} {data[idx][3]:.5f} {1.70 * 10e12 * ((wave)**(-3.48)):.5f}')   
+    HbO2, Hb, Cholesterol, Carbon Tissue Layer
+    for idx, wave in enumerate(list(range(700, 981, 5))):
+        print(f'{wave} {data[idx][0]:.5f} {data[idx][1]:.5f} {data[idx][2]:.5f} {data[idx][3]:.5f} {(12 / 2 / 25 * 10e4 * math.exp(-0.0032 * wave)):.5f}')
+"""
