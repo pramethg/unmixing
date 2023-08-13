@@ -112,26 +112,29 @@ def weights_plot(array, wave_list, scale = False, legend = ["HbO2", "Hb", "Chole
     plt.show()
 
 def run_ica(train_data, wave_list, n_components = 3, random_state = None, fun = 'exp', algorithm = 'parallel'):
+    _, h, w = train_data.shape
     mdl = FastICA(n_components = n_components, algorithm = algorithm, whiten = True, fun = fun, random_state = random_state)
     train_data = train_data.transpose((1, 2, 0)).reshape((-1, len(wave_list)))
     maps = mdl.fit_transform(train_data)
-    ims = np.copy(maps).reshape((396, 101, n_components))
+    ims = np.copy(maps).reshape((h, w, n_components))
     w = np.linalg.pinv(mdl.components_)
     return ims, w, mdl
 
 def plot_comps_2d(comps, wave_list, wts, title = "ICA", figsize = (15, 4), order = [0, 1, 2], invert_sign = None, clim = [None]*3, xticks = None, chrom = ['HbO2', 'Hb', 'Cholesterol'], save = None):
     ims = np.array([comps[:,:,i] for i in order]).transpose((1, 2, 0))
+    if len(chrom) != ims.shape[2]:
+        chrom = [str(i) for i in range(ims.shape[2])]
     w = np.array([wts[:,i] for i in order]).T
     plt.figure(figsize = figsize)
     for i in range(ims.shape[2]):
-        plt.subplot(1, 4, i+2)
+        plt.subplot(1, ims.shape[2] + 1, i+2)
         plt.imshow((-ims[:,:,i]) if invert_sign == i else (ims[:,:,i]), cmap = "hot")
         if chrom:
             plt.title(chrom[i] + "(Inverted)" if invert_sign == i else chrom[i])
         if clim[i] is not None:
             plt.clim(clim[i])
         plt.colorbar()
-    plt.subplot(1, 4, 1)
+    plt.subplot(1, ims.shape[2] + 1, 1)
     plt.plot(wave_list, w)
     plt.xticks(xticks)
     plt.xlabel("Wavelength (nm)")
