@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     hbo2hbchpr = np.zeros((57, 4))
     for idx, wave in enumerate(np.arange(700, 981, 5)):
-        hbo2hbchpr[idx, 2] = df1['AbsorptionCoeff'][df1['Wavelength'] == wave].values[0] / 100
+        hbo2hbchpr[idx, 2] = df1['AbsorptionCoeff'][df1['Wavelength'] == wave].values[0] / 1000
         if wave not in df2['Wavelength'].values:
             hbo2hbchpr[idx, 1] = ((df2['Hb'][df2['Wavelength'] == (wave - 1)].values[0]) + (df2['Hb'][df2['Wavelength'] == (wave + 1)].values[0])) * 2.303 * 6.45 /64500 /2
             hbo2hbchpr[idx, 0] = ((df2['HbO2'][df2['Wavelength'] == (wave - 1)].values[0]) + (df2['HbO2'][df2['Wavelength'] == (wave + 1)].values[0])) * 2.303 * 6.45 /64500 /2
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     plt.xticks(np.arange(700, 981, 20))
     plt.legend(['HbO2', 'Hb', 'Cholesterol', 'Prostate'])
     plt.xlabel("Wavelength (nm)")
-    plt.ylabel("Absorption Coefficient (cm^-1)")
+    plt.ylabel("Absorption Coefficient (mm^-1)")
     plt.show()
     """
     plt.figure(figsize = (10, 6))

@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
     hbo2hbchpr = np.zeros((29, 4))
     for idx, wave in enumerate(np.arange(700, 981, 10)):
-        hbo2hbchpr[idx, 2] = df1['AbsorptionCoeff'][df1['Wavelength'] == wave].values[0] / 100
+        hbo2hbchpr[idx, 2] = df1['AbsorptionCoeff'][df1['Wavelength'] == wave].values[0] / 1000
         hbo2hbchpr[idx, 1] = df2['Hb'][df2['Wavelength'] == wave].values[0] * 2.303 * 6.45 /64500
         hbo2hbchpr[idx, 0] = df2['HbO2'][df2['Wavelength'] == wave].values[0] * 2.303 * 6.45 /64500
         hbo2hbchpr[idx, 3] = yp[idx]
