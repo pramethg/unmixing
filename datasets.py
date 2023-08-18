@@ -4,9 +4,31 @@ from scipy import linalg
 from scipy.io import loadmat
 from torchvision import transforms
 from torch.utils.data import Dataset, DataLoader
+from sklearn.utils import as_float_array
+from sklearn.base import TransformerMixin, BaseEstimator
+
+class ZCA(BaseEstimator, TransformerMixin):
+    def __init__(self, regularization=1e-5, copy=False):
+        self.regularization = regularization
+        self.copy = copy
+
+    def fit(self, X, y=None):
+        X = as_float_array(X, copy=self.copy)
+        self.mean_ = np.mean(X, axis=0)
+        X = X - self.mean_
+        sigma = np.dot(X.T, X) / (X.shape[0] - 1)
+        U, S, V = np.linalg.svd(sigma)
+        tmp = np.dot(U, np.diag(1 / np.sqrt(S + self.regularization)))
+        self.components_ = np.dot(tmp, U.T)
+        return self
+
+    def transform(self, X):
+        X_transformed = X - self.mean_
+        X_transformed = np.dot(X_transformed, self.components_.T)
+        return X_transformed
 
 class SingleCholesterolDataset(Dataset):
-    def __init__(self, root = './data/hb_hbo2_fat_29', wavelist = np.arange(700, 981, 10), depth = [35], transform = None, whiten = False, normalize = True):
+    def __init__(self, root = './data/hb_hbo2_fat_29', wavelist = np.arange(700, 981, 10), depth = [35], transform = None, whiten = 'zca', normalize = True):
         self.root = root
         self.depth = depth
         self.wavelist = wavelist
@@ -34,7 +56,11 @@ class SingleCholesterolDataset(Dataset):
             if self.normalize:
                 simdata = self.normalize(simdata)
             simdata = simdata.transpose((1, 2, 0)).reshape((h*w, c))
-            if self.whiten:
+            if self.whiten == 'zca':
+                zca = ZCA()
+                zca.fit(simdata)
+                simdata = zca.transform(simdata)
+            else:
                 simdata = simdata.T
                 sim_mean = simdata.mean(axis = -1)
                 simdata -= sim_mean[:, np.newaxis]
