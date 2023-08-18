@@ -28,12 +28,14 @@ class ZCA(BaseEstimator, TransformerMixin):
         return X_transformed
 
 class SingleCholesterolDataset(Dataset):
-    def __init__(self, root = './data/hb_hbo2_fat_29', wavelist = np.arange(700, 981, 10), depth = [35], transform = None, whiten = 'zca', normalize = True):
+    def __init__(self, root = './data/hb_hbo2_fat_11', wavelist = 'EXP10', depth = [35], transform = None, whiten = 'zca', normalize = True):
         self.root = root
         self.depth = depth
         self.wavelist = wavelist
         self.transform = transform
         self.whiten = whiten
+        wavelists = {'FULL': np.arange(700, 981, 10), 'EXP10': [750, 760, 800, 850, 900, 910, 920, 930, 940, 950], 'EXP6': [750, 760, 800, 850, 900, 925]}
+        self.wavelist = wavelists[wavelist]
     
     @staticmethod
     def normalize(image):
@@ -53,14 +55,11 @@ class SingleCholesterolDataset(Dataset):
         for depth in self.depth:
             simdata = np.array([np.array(loadmat(f'{self.root}_{depth}/PA_Image_{wave}.mat')['Image_PA']) for wave in self.wavelist])
             c, h, w = simdata.shape
-            if self.normalize:
-                simdata = self.normalize(simdata)
-            simdata = simdata.transpose((1, 2, 0)).reshape((h*w, c))
+            simdata = self.normalize(simdata).transpose((1, 2, 0)).reshape((h*w, c))
             if self.whiten == 'zca':
                 zca = ZCA()
-                zca.fit(simdata)
-                simdata = zca.transform(simdata)
-            else:
+                simdata = zca.fit_transform(simdata)
+            if self.whiten == 'ica':
                 simdata = simdata.T
                 sim_mean = simdata.mean(axis = -1)
                 simdata -= sim_mean[:, np.newaxis]
@@ -69,6 +68,9 @@ class SingleCholesterolDataset(Dataset):
                 K = (U / D).T
                 simdata = np.dot(K, simdata)
                 simdata *= np.sqrt(h * w)
+            if self.normalize:
+                simdata = simdata.reshape((h, w, c)).transpose((2, 0, 1))
+                simdata = self.normalize(simdata).transpose((1, 2, 0)).reshape((h*w, c))
             simdatalist.append(simdata)
         simdatalist = np.array(simdatalist).transpose(2, 0, 1).reshape((len(self.wavelist), -1)).T
         if self.transform:
