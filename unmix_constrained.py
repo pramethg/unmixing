@@ -16,10 +16,11 @@ from datasets import ZCA
 from datasets import SingleCholesterolDataset
 
 class AutoEncoder(nn.Module):
-    def __init__(self, input_dim, hidden_dim, activation = 'trelu', tied = True):
+    def __init__(self, input_dim, hidden_dim, activation = 'trelu', tied = True, winit = False, wdecay = 1e-5):
         super(AutoEncoder, self).__init__()
         self.tied = tied
-        encw = wtscale(symdecorrelation(torch.randn(input_dim, hidden_dim)))
+        self.wdecay = wdecay
+        encw = wtscale(symdecorrelation(torch.randn(input_dim, hidden_dim))) if winit else torch.randn(input_dim, hidden_dim)
         self.encw = nn.Parameter(encw)
         self.encb = nn.Parameter(torch.zeros(hidden_dim))
         self.decw = self.encw.t() if self.tied else nn.Parameter(torch.randn(hidden_dim, input_dim))
@@ -32,6 +33,9 @@ class AutoEncoder(nn.Module):
         activations = {'trelu': self.trelu, 'tsigmoid': self.tsigmoid, 'tsoftplus': self.tsoftplus, 'sigmoid': F.sigmoid, 'relu': F.relu, 'softplus': F.softplus, 'tanh': F.tanh}
         assert activation in activations, 'Pick Valid Activation Function'
         self.activation = activations[activation]
+    
+    def l2regularization(self):
+        return self.wdecay * torch.sum(self.encw ** 2)
     
     def tsoftplus(self, x):
         return F.softplus(self.beta + (self.alpha * x))
@@ -82,7 +86,7 @@ def wtscale(W):
         W[idx] /= Wsum[idx]
     return W
 
-def unmixing(seed = 9, beta = 1, negexp = 1.0, save = False):
+def unmixing(seed = 9, beta = 1, negexp = 1.0, l2reg = True, save = False):
     BATCH_SIZE = 396*101
     EPOCHS = 150
     LRATE = 7e-3
@@ -94,7 +98,8 @@ def unmixing(seed = 9, beta = 1, negexp = 1.0, save = False):
     data = SingleCholesterolDataset(root = './data/hb_hbo2_fat_11', wavelist = 'EXP10', depth = [20], whiten = 'zca', normalize = True)
     dataloader = DataLoader(data, batch_size = BATCH_SIZE, shuffle = False, num_workers = 16)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = AutoEncoder(len(data.wavelist), NCOMP, activation = 'sigmoid', tied = True).to(device = device)
+    model = AutoEncoder(len(data.wavelist), NCOMP, activation = 'tsigmoid', tied = False, winit = True).to(device = device)
+    print(f'Model Parameters: {sum(param.numel() for param in model.parameters())}')
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr = LRATE)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode = 'min', factor = 0.5, patience = 10, verbose = True)
@@ -110,6 +115,11 @@ def unmixing(seed = 9, beta = 1, negexp = 1.0, save = False):
             mse = criterion(decoded, batch)
             negentropy = torch.abs(-(torch.mean(-torch.exp(- negexp * (encoded ** 2) / 2)) - torch.mean(-torch.exp(- negexp * (torch.randn_like(encoded)) ** 2 / 2))))
             loss = ((beta * mse) + ((1 - beta) * negentropy)) if beta != 1 else (mse + negentropy)
+            if l2reg:
+                loss += model.l2regularization()
+            with torch.no_grad():
+                minval, maxval = model.encw.data.min(), model.encw.data.max()
+                model.encw.data = (model.encw.data - minval) / (maxval - minval + 1e-12)
             loss.backward()
             optimizer.step()
             epochloss.append(loss.item())
@@ -126,7 +136,7 @@ def unmixing(seed = 9, beta = 1, negexp = 1.0, save = False):
         torch.save(model.state_dict(), 'CONSTRAINED.pth')
     
     plt.figure(figsize = (8, 5))
-    plt.plot(list(range(EPOCHS)), losses)
+    plt.plot(list(range(len(losses))), losses)
     plt.savefig('./CONSTRAINED/Loss.png', dpi = 500)
     plt.close()
 
@@ -137,7 +147,7 @@ def unmixing(seed = 9, beta = 1, negexp = 1.0, save = False):
 
     simdata = testdata[0].numpy().reshape((396, 101, len(testdata.wavelist)))
     decout = model.forward(testdata[0].to(device))[1].detach().cpu().numpy().reshape((396, 101, len(testdata.wavelist)))
-    plt.figure(figsize = (10, 6))
+    plt.figure(figsize = (12, 4))
     for idx in range(len(testdata.wavelist)):
         plt.subplot(2, 10, idx + 1)
         plt.imshow(simdata[:, :, idx], cmap = "hot")
@@ -145,10 +155,11 @@ def unmixing(seed = 9, beta = 1, negexp = 1.0, save = False):
         plt.subplot(2, 10, idx + 11)
         plt.imshow(decout[:, :, idx], cmap = "hot")
         plt.colorbar()
+    plt.tight_layout()
     plt.savefig('./CONSTRAINED/Decoder.png')
 
 if __name__ == "__main__":
-    unmixing(seed = 9, beta = 1, negexp = 1.2, save = False)
+    unmixing(seed = 9, beta = 1, negexp = 1.5, l2reg = True, save = False)
 
 """
     sim_data = np.array([np.array(loadmat(f'./data/hb_hbo2_fat_11_20/PA_Image_{wave}.mat')['Image_PA']) for wave in data.wavelist])
