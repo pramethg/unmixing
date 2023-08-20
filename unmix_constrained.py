@@ -86,7 +86,7 @@ def wtscale(W):
         W[idx] /= Wsum[idx]
     return W
 
-def unmixing(seed = 9, beta = 1, negexp = 1.0, l2reg = True, save = False):
+def unmixing(seed = 9, beta = 1, negexp = 1.0, l2reg = True, save = False, wnorm = False):
     BATCH_SIZE = 396*101
     EPOCHS = 150
     LRATE = 7e-3
@@ -117,9 +117,10 @@ def unmixing(seed = 9, beta = 1, negexp = 1.0, l2reg = True, save = False):
             loss = ((beta * mse) + ((1 - beta) * negentropy)) if beta != 1 else (mse + negentropy)
             if l2reg:
                 loss += model.l2regularization()
-            with torch.no_grad():
-                minval, maxval = model.encw.data.min(), model.encw.data.max()
-                model.encw.data = (model.encw.data - minval) / (maxval - minval + 1e-12)
+            if wnorm:
+                with torch.no_grad():
+                    minval, maxval = model.encw.data.min(), model.encw.data.max()
+                    model.encw.data = (model.encw.data - minval) / (maxval - minval + 1e-12)
             loss.backward()
             optimizer.step()
             epochloss.append(loss.item())
@@ -159,7 +160,7 @@ def unmixing(seed = 9, beta = 1, negexp = 1.0, l2reg = True, save = False):
     plt.savefig('./CONSTRAINED/Decoder.png')
 
 if __name__ == "__main__":
-    unmixing(seed = 9, beta = 1, negexp = 1.5, l2reg = True, save = False)
+    unmixing(seed = 9, beta = 1, negexp = 1.5, l2reg = False, save = False, wnorm = False)
 
 """
     sim_data = np.array([np.array(loadmat(f'./data/hb_hbo2_fat_11_20/PA_Image_{wave}.mat')['Image_PA']) for wave in data.wavelist])
