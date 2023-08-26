@@ -89,7 +89,7 @@ def plot_weights(array, legend = ["", "", ""], save = False, scale = False, div 
     plt.plot(np.arange(700, final, div), wt_scale(array) if scale else array)
     plt.xticks(np.arange(700, final, 20))
     plt.xlabel("Wavelength (nm)")
-    plt.ylabel("Absorption Coefficient (cm^-1)")
+    plt.ylabel("Absorption Coefficient (mm^-1)")
     plt.legend(legend)
     plt.title(f"{legend[0]}, {legend[1]}, {legend[2]}")
     if save:
@@ -101,7 +101,7 @@ def weights_plot(array, wave_list, scale = False, legend = ["HbO2", "Hb", "Chole
     plt.plot(wave_list, wt_scale(array) if scale else array)
     plt.xticks(xticks)
     plt.xlabel("Wavelength (nm)")
-    plt.ylabel("Absorption Coefficient (cm^-1)")
+    plt.ylabel("Absorption Coefficient (mm^-1)")
     plt.legend(legend)
     if title is None:
         plt.title(f"{' '.join(legend)}: {len(wave_list)} Wavelengths")
@@ -138,7 +138,7 @@ def plot_comps_2d(comps, wave_list, wts, title = "ICA", figsize = (15, 4), order
     plt.plot(wave_list, w)
     plt.xticks(xticks)
     plt.xlabel("Wavelength (nm)")
-    plt.ylabel("Absorption Coefficient (cm^-1)")
+    plt.ylabel("Absorption Coefficient (mm^-1)")
     plt.title(label = title)
     plt.legend(chrom)
     plt.tight_layout()

@@ -98,7 +98,7 @@ def unmixing(seed = 9, beta = 1, negexp = 1.0, l2reg = True, save = False, wnorm
     data = SingleCholesterolDataset(root = './data/hb_hbo2_fat_11', wavelist = 'EXP10', depth = [20], whiten = 'zca', normalize = True)
     dataloader = DataLoader(data, batch_size = BATCH_SIZE, shuffle = False, num_workers = 16)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = AutoEncoder(len(data.wavelist), NCOMP, activation = 'tsigmoid', tied = False, winit = True).to(device = device)
+    model = AutoEncoder(len(data.wavelist), NCOMP, activation = 'sigmoid', tied = False, winit = True).to(device = device)
     print(f'Model Parameters: {sum(param.numel() for param in model.parameters())}')
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr = LRATE)
@@ -119,6 +119,7 @@ def unmixing(seed = 9, beta = 1, negexp = 1.0, l2reg = True, save = False, wnorm
                 loss += model.l2regularization()
             if wnorm:
                 with torch.no_grad():
+                    model.encw.data = symdecorrelation(model.encw.data)
                     minval, maxval = model.encw.data.min(), model.encw.data.max()
                     model.encw.data = (model.encw.data - minval) / (maxval - minval + 1e-12)
             loss.backward()
@@ -160,7 +161,7 @@ def unmixing(seed = 9, beta = 1, negexp = 1.0, l2reg = True, save = False, wnorm
     plt.savefig('./CONSTRAINED/Decoder.png')
 
 if __name__ == "__main__":
-    unmixing(seed = 9, beta = 1, negexp = 1.5, l2reg = False, save = False, wnorm = False)
+    unmixing(seed = 9, beta = 1, negexp = 1.2, l2reg = False, save = False, wnorm = False)
 
 """
     sim_data = np.array([np.array(loadmat(f'./data/hb_hbo2_fat_11_20/PA_Image_{wave}.mat')['Image_PA']) for wave in data.wavelist])
