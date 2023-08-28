@@ -55,6 +55,12 @@ class AutoEncoder(nn.Module):
         decout = F.sigmoid(torch.matmul(encout, self.encw.t()) + self.decb) if self.tied \
                 else F.sigmoid(torch.matmul(encout, self.decw) + self.decb)
         return encout, decout
+        
+    def sparsity(self, activations):
+        mean = torch.mean(activations, dim = 0)
+        mean = torch.clamp(mean, self.eps, 1 - self.eps)
+        kldiv = (self.sparsity_target * torch.log(self.sparsity_target / mean)) + ((1 - self.sparsity_target) *  torch.log((1 - self.sparsity_target) / (1 - mean)))
+        return torch.sum(kldiv)
 
 def test(tied = True):
     x = torch.randn(2048, 10)

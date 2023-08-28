@@ -77,6 +77,8 @@ class ModICA(FastICA):
             u *= np.sign(u[0])
 
             K = (u / d).T[:n_components]
+            if self.modified:
+                K[K < 0] = 0
             del u, d
             X1 = np.dot(K, XT)
             X1 *= np.sqrt(n_samples)
@@ -143,7 +145,7 @@ class ModICA(FastICA):
         
         if self.predefined is not None:
             self.components_ = self.predefined
-
+        
         self.mixing_ = linalg.pinv(self.components_, check_finite=False)
         self._unmixing = W
 
