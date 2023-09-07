@@ -135,7 +135,7 @@ def plot_comps_2d(comps, wave_list, wts, title = "ICA", figsize = (15, 4), order
             plt.clim(clim[i])
         plt.colorbar()
     plt.subplot(1, ims.shape[2] + 1, 1)
-    plt.plot(wave_list, w)
+    plt.plot(wave_list if len(wave_list) == w.shape[0] else list(range(w.shape[0])), w)
     plt.xticks(xticks)
     plt.xlabel("Wavelength (nm)")
     plt.ylabel("Absorption Coefficient (mm^-1)")
