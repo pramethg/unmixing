@@ -120,26 +120,44 @@ def run_ica(train_data, wave_list, n_components = 3, random_state = None, fun = 
     w = np.linalg.pinv(mdl.components_)
     return ims, w, mdl
 
-def plot_comps_2d(comps, wave_list, wts, title = "ICA", figsize = (15, 4), order = [0, 1, 2], invert_sign = None, clim = [None]*3, xticks = None, chrom = ['HbO2', 'Hb', 'Cholesterol'], save = None):
+def plot_comps_2d(comps, wave_list, wts, title = "ICA", figsize = (15, 4), order = [0, 1, 2], invert_sign = None, clim = [None]*3, xticks = None, chrom = ['HbO2', 'Hb', 'Cholesterol'], save = None, mrows = None):
     ims = np.array([comps[:,:,i] for i in order]).transpose((1, 2, 0))
     if len(chrom) != ims.shape[2]:
         chrom = [str(i) for i in range(ims.shape[2])]
     w = np.array([wts[:,i] for i in order]).T
     plt.figure(figsize = figsize)
-    for i in range(ims.shape[2]):
-        plt.subplot(1, ims.shape[2] + 1, i+2)
-        plt.imshow((-ims[:,:,i]) if invert_sign == i else (ims[:,:,i]), cmap = "hot")
-        if chrom:
-            plt.title(chrom[i] + "(Inverted)" if invert_sign == i else chrom[i])
-        if clim[i] is not None:
-            plt.clim(clim[i])
-        plt.colorbar()
-    plt.subplot(1, ims.shape[2] + 1, 1)
-    plt.plot(wave_list if len(wave_list) == w.shape[0] else list(range(w.shape[0])), w)
-    plt.xticks(xticks)
-    plt.xlabel("Wavelength (nm)")
-    plt.ylabel("Absorption Coefficient (mm^-1)")
-    plt.title(label = title)
+    if mrows:
+        for i in range((mrows[0] * mrows[1]) - 1):
+            if i >= ims.shape[-1]:
+                break
+            plt.subplot(mrows[0], mrows[1], i + 2)
+            plt.imshow((-ims[:,:,i]) if invert_sign == i else (ims[:,:,i]), cmap = "hot")
+            if chrom:
+                plt.title(chrom[i] + "(Inverted)" if invert_sign == i else chrom[i])
+            if clim[i] is not None:
+                plt.clim(clim[i])
+            plt.colorbar()
+        plt.subplot(mrows[0], mrows[1], 1)
+        plt.plot(wave_list if len(wave_list) == w.shape[0] else list(range(w.shape[0])), w)
+        plt.xticks(xticks)
+        plt.xlabel("Wavelength (nm)")
+        plt.ylabel("Absorption Coefficient (mm^-1)")
+        plt.title(label = title)
+    else:
+        for i in range(ims.shape[2]):
+            plt.subplot(1, ims.shape[2] + 1, i+2)
+            plt.imshow((-ims[:,:,i]) if invert_sign == i else (ims[:,:,i]), cmap = "hot")
+            if chrom:
+                plt.title(chrom[i] + "(Inverted)" if invert_sign == i else chrom[i])
+            if clim[i] is not None:
+                plt.clim(clim[i])
+            plt.colorbar()
+        plt.subplot(1, ims.shape[2] + 1, 1)
+        plt.plot(wave_list if len(wave_list) == w.shape[0] else list(range(w.shape[0])), w)
+        plt.xticks(xticks)
+        plt.xlabel("Wavelength (nm)")
+        plt.ylabel("Absorption Coefficient (mm^-1)")
+        plt.title(label = title)
     plt.legend(chrom)
     plt.tight_layout()
     if save:
