@@ -3,6 +3,7 @@ from scipy import linalg
 import matplotlib.pyplot as plt
 from scipy.optimize import nnls
 from sklearn.decomposition import FastICA
+from matplotlib.patches import Rectangle
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -172,3 +173,20 @@ def run_linear_unmixing(sim_data, abscoeffs):
         for j in range(sim_data.shape[2]):
             unmixed[i, j] = nnls(abscoeffs, sim_data[:, i, j])[0]
     return unmixed
+
+def roi_analysis(exp_img, img, rois = np.array([[[0, 10], [0, 10]]])):
+    plt.figure(figsize = (7, 7))
+    plt.yticks(np.arange(0, np.shape(exp_img)[1], 5))
+    plt.xticks(np.arange(0, np.shape(exp_img)[2], 5))
+    plt.imshow(img, cmap = 'hot')
+    plt.colorbar()
+    for idx in range(len(rois)):
+        plt.gca().add_patch(Rectangle((rois[idx][1, 0], rois[idx][0, 0]), rois[idx][1, 1]-rois[idx][1, 0], rois[idx][0, 1]-rois[idx][0, 0],edgecolor = 'cyan', facecolor = 'None', lw = 1.5))
+    plt.show()
+    plt.close()
+    plt.figure(figsize = (6 * len(rois), 4))
+    for idx in range(len(rois)):
+        plt.subplot(1, len(rois), idx + 1)
+        plt.plot(wave_list, np.mean(exp_img[:, rois[idx][0, 0]:rois[idx][0, 1] + 1, rois[idx][1, 0]:rois[idx][1, 1] + 1], axis = (1, 2)))
+        plt.title(f'ROI - {idx + 1}')
+    plt.show()
