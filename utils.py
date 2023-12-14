@@ -190,3 +190,23 @@ def roi_analysis(exp_img, img, rois = np.array([[[0, 10], [0, 10]]])):
         plt.plot(wave_list, np.mean(exp_img[:, rois[idx][0, 0]:rois[idx][0, 1] + 1, rois[idx][1, 0]:rois[idx][1, 1] + 1], axis = (1, 2)))
         plt.title(f'ROI - {idx + 1}')
     plt.show()
+
+def textparse(fpath = "../acousticx/TEST-5.txt"):
+    res = []
+    with open(fpath, 'r') as f:
+        for line in f:
+            roi = list(map(int, line.strip().split()))
+            res.append(roi)
+    return res
+
+def moving_average(data, window_size):
+    cumsum = np.cumsum(data, dtype=float)
+    cumsum[window_size:] = cumsum[window_size:] - cumsum[:-window_size]
+    return cumsum[window_size - 1:] / window_size
+
+def roiplot(ax, img, rois, title):
+    ax.imshow(img, cmap = 'hot', extent = [0, 1, 0, 1])
+    ax.set_title(f"{title}")
+    for ridx in range(len(rois)):
+        rect = Rectangle((rois[ridx][2], rois[ridx][0]), (rois[ridx][3] - rois[ridx][2]), (rois[ridx][1] - rois[ridx][0]), linewidth = 1, edgecolor = 'white', facecolor = 'none')
+        ax.add_patch(rect)
