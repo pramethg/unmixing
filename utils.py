@@ -205,8 +205,26 @@ def moving_average(data, window_size):
     return cumsum[window_size - 1:] / window_size
 
 def roiplot(ax, img, rois, title):
-    ax.imshow(img, cmap = 'hot', extent = [0, 1, 0, 1])
+    ax.imshow(img, cmap = 'hot')
     ax.set_title(f"{title}")
     for ridx in range(len(rois)):
         rect = Rectangle((rois[ridx][2], rois[ridx][0]), (rois[ridx][3] - rois[ridx][2]), (rois[ridx][1] - rois[ridx][0]), linewidth = 1, edgecolor = 'white', facecolor = 'none')
         ax.add_patch(rect)
+
+"""
+fig, axs = plt.subplots(2, 5, figsize = (25, 8))
+roiplot(axs[0, 0], paw1[0, rois[8][0]: rois[8][1], rois[8][2]: rois[8][3]], rois[: 4], title = f"{swv[0]} ROIs")
+roiplot(axs[1, 0], paw2[0, rois[8][0]: rois[8][1], rois[8][2]: rois[8][3]], rois[4:8], title = f"{swv[1]} ROIs")
+for idx, subidx in enumerate(list(set(list(range(10))) - set([0, 5]))):
+    ax = axs[subidx // 5, subidx % 5]
+    if idx < nrois:
+        mean = np.mean(paw1[:, rois[idx][0]:rois[idx][1], rois[idx][2]:rois[idx][3]], axis=(1, 2))
+    else:
+        mean = np.mean(paw2[:, rois[idx][0]:rois[idx][1], rois[idx][2]:rois[idx][3]], axis=(1, 2))
+    mavg = moving_average(mean, 5)
+    ax.plot(mean, "b")
+    ax.plot(mavg, 'r')
+    ax.axvspan(round(frames * ratios[1][0] / 2), round(frames * ratios[1][1] / 2), color='coral', alpha=0.4, lw=0)
+    ax.set_title(f'{swv[0] if idx < nrois else swv[1]} NM ROI - {(idx + 1) if idx < 4 else (idx - 3)}')
+plt.show()
+"""
