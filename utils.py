@@ -211,6 +211,26 @@ def roiplot(ax, img, rois, title):
         rect = Rectangle((rois[ridx][2], rois[ridx][0]), (rois[ridx][3] - rois[ridx][2]), (rois[ridx][1] - rois[ridx][0]), linewidth = 1, edgecolor = 'white', facecolor = 'none')
         ax.add_patch(rect)
 
+def singleroi(pa, file, lidx):
+    roi = textparse(os.path.join(dir, file))[lidx]
+    print(roi)
+    plt.figure(figsize = (8, ))
+    plt.subplot(1, 2, 1)
+    plt.imshow(pa[:, :, 9].T, cmap = "hot")
+    plt.gca().add_patch(Rectangle((roi[2], roi[0]), roi[3] - roi[2], roi[1] - roi[0], edgecolor = 'white', facecolor = 'None', lw = 2.0))
+    plt.subplot(1, 2, 2)
+    mean = np.mean(pa[:, roi[0]:roi[1], roi[2]:roi[3]], axis = (1, 2))
+    mavg = moving_average(mean, 5)
+    plt.plot(mean[:-1], "b")
+    plt.plot(mavg[:-1], 'r')
+    plt.axvspan(round(pa.shape[0] * ratios[1][0] / 2), round(frames * ratios[1][1] / 2), color = 'coral', alpha = 0.4, lw = 0)
+
+def singleplot(pa, rois, fidx, idx = 9):
+    plt.figure(figsize = (7, 7))
+    plt.imshow(pa[fidx, rois[idx][0]:rois[idx][1], rois[idx][2]:rois[idx][3]], cmap = 'hot', extent = [0, 1, 0, 1])
+    plt.colorbar()
+    plt.show()
+
 """
 fig, axs = plt.subplots(2, 5, figsize = (25, 8))
 roiplot(axs[0, 0], paw1[0, rois[8][0]: rois[8][1], rois[8][2]: rois[8][3]], rois[: 4], title = f"{swv[0]} ROIs")
