@@ -204,6 +204,10 @@ def moving_average(data, window_size):
     cumsum[window_size:] = cumsum[window_size:] - cumsum[:-window_size]
     return cumsum[window_size - 1:] / window_size
 
+def moving_average_same(data, window_size):
+    kernel = np.ones(window_size) / window_size
+    return np.convolve(data, kernel, mode = 'same')
+
 def roiplot(ax, img, rois, title):
     ax.imshow(img, cmap = 'hot')
     ax.set_title(f"{title}")
